@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Asset;
+use App\Models\Category;
+use App\Models\FundingSource;
+use App\Models\Location;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class AssetController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Asset::with(['category', 'location', 'fundingSource']);
+
+        if ($search = $request->get('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('kode_barang', 'like', "%{$search}%")
+                  ->orWhere('kode_umum', 'like', "%{$search}%")
+                  ->orWhere('kode_aset', 'like', "%{$search}%");
+            });
+        }
+
+        if ($categoryId = $request->get('category_id')) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $assets = $query->orderByDesc('id')->paginate(15)->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('assets.index', compact('assets', 'categories'));
+    }
+
+    public function create()
+    {
+        $categories = Category::orderBy('name')->get();
+        $locations = Location::orderBy('name')->get();
+        $fundingSources = FundingSource::orderBy('name')->get();
+        $nextKode = Asset::generateNextKodeBarang();
+
+        return view('assets.create', compact('categories', 'locations', 'fundingSources', 'nextKode'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $this->validateData($request);
+
+        Asset::create($data);
+
+        return redirect()->route('assets.index')->with('success', 'Aset berhasil ditambahkan.');
+    }
+
+    public function edit(Asset $asset)
+    {
+        $categories = Category::orderBy('name')->get();
+        $locations = Location::orderBy('name')->get();
+        $fundingSources = FundingSource::orderBy('name')->get();
+
+        return view('assets.edit', compact('asset', 'categories', 'locations', 'fundingSources'));
+    }
+
+    public function update(Request $request, Asset $asset)
+    {
+        $data = $this->validateData($request, $asset);
+
+        $asset->update($data);
+
+        return redirect()->route('assets.index')->with('success', 'Aset berhasil diperbarui.');
+    }
+
+    public function destroy(Asset $asset)
+    {
+        if ($asset->isBorrowed()) {
+            return back()->withErrors(['error' => 'Aset sedang dipinjam, tidak bisa dihapus.']);
+        }
+
+        $asset->delete();
+
+        return back()->with('success', 'Aset berhasil dihapus.');
+    }
+
+    public function show(Asset $asset)
+    {
+        $asset->load(['category', 'location', 'fundingSource', 'repairHistories', 'loanItems.loan.borrower']);
+        return view('assets.show', compact('asset'));
+    }
+
+    private function validateData(Request $request, ?Asset $asset = null): array
+    {
+        $assetId = $asset?->id;
+
+        return $request->validate([
+            'kode_barang' => [
+                'required', 'string', 'max:50',
+                Rule::unique('assets', 'kode_barang')->ignore($assetId),
+            ],
+            'kode_umum' => 'required|string|max:50',
+            'kode_aset' => [
+                'required', 'string', 'max:50',
+                Rule::unique('assets')->where(fn($q) => $q->where('kode_umum', $request->kode_umum))->ignore($assetId),
+            ],
+            'nama_barang' => 'required|string|max:200',
+            'category_id' => 'nullable|exists:categories,id',
+            'location_id' => 'nullable|exists:locations,id',
+            'tahun_pembelian' => 'nullable|digits:4|integer|min:1990|max:' . (date('Y') + 1),
+            'funding_source_id' => 'nullable|exists:funding_sources,id',
+            'keterangan' => 'nullable|string',
+        ], [
+            'kode_aset.unique' => 'Kode Aset ini sudah dipakai pada Kode Umum yang sama.',
+            'kode_barang.unique' => 'Kode Barang sudah digunakan aset lain.',
+        ]);
+    }
+}
