@@ -2,6 +2,40 @@
 @section('title', 'Dashboard')
 @section('content')
 
+@php $u = auth()->user(); @endphp
+<div class="row g-2 mb-3">
+    @if($u->hasPermission('peminjaman'))
+    <div class="col-6 col-md-3">
+        <a href="{{ route('loans.cart') }}" class="btn btn-lg w-100 text-white shadow-sm d-flex flex-column align-items-center py-3" style="background: linear-gradient(135deg,#2575fc,#00c6ff);">
+            <i class="bi bi-cart-plus fs-3"></i>
+            <span class="small mt-1">Keranjang Peminjaman</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ route('loans.quick_return') }}" class="btn btn-lg w-100 text-white shadow-sm d-flex flex-column align-items-center py-3" style="background: linear-gradient(135deg,#11998e,#38ef7d);">
+            <i class="bi bi-upc-scan fs-3"></i>
+            <span class="small mt-1">Pengembalian Cepat</span>
+        </a>
+    </div>
+    @endif
+    @if($u->hasPermission('aset'))
+    <div class="col-6 col-md-3">
+        <a href="{{ route('assets.create') }}" class="btn btn-lg w-100 text-white shadow-sm d-flex flex-column align-items-center py-3" style="background: linear-gradient(135deg,#6a11cb,#8e2de2);">
+            <i class="bi bi-box-seam fs-3"></i>
+            <span class="small mt-1">Tambah Aset</span>
+        </a>
+    </div>
+    @endif
+    @if($u->hasPermission('kerusakan'))
+    <div class="col-6 col-md-3">
+        <a href="{{ route('repairs.create') }}" class="btn btn-lg w-100 text-white shadow-sm d-flex flex-column align-items-center py-3" style="background: linear-gradient(135deg,#f2994a,#f2c94c);">
+            <i class="bi bi-tools fs-3"></i>
+            <span class="small mt-1">Catat Kerusakan</span>
+        </a>
+    </div>
+    @endif
+</div>
+
 <div class="row g-3 mb-3">
     <div class="col-lg-3 col-6">
         <div class="small-box text-white shadow" style="background: linear-gradient(135deg,#6a11cb,#8e2de2);">

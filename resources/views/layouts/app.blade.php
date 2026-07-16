@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,7 +47,7 @@
     </style>
     @yield('styles')
 </head>
-<body>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
 
     <!-- NAVBAR -->
