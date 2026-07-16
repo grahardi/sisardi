@@ -5,6 +5,22 @@ Paket ini berisi **kode aplikasi** (migration, model, controller, route, view) y
 tinggal disalin ke dalam project Laravel 13 yang sudah kamu siapkan. Ini bukan
 project Laravel yang berdiri sendiri — jadi tidak perlu `composer create-project` lagi.
 
+## Changelog
+
+- **Fix**: `Asset::generateNextKodeBarang()` sempat memanggil `withTrashed()` padahal
+  tabel `assets` tidak pakai Soft Delete — menyebabkan `BadMethodCallException`. Sudah diperbaiki.
+- **Baru**: fitur **Import Excel/CSV** untuk data Aset dan data Guru/Siswa (lihat bagian
+  "Fitur Import Excel" di bawah). Butuh 1 package tambahan: `maatwebsite/excel`.
+
+## 0. Install package tambahan untuk import Excel
+
+```bash
+composer require maatwebsite/excel
+```
+
+Tidak perlu publish config apa pun — sudah cukup dengan `Maatwebsite\Excel\Facades\Excel`
+yang langsung dipakai di controller.
+
 ## 1. Salin folder ke project Laravel kamu
 
 Salin isi folder ini ke project Laravel kamu (folder tujuan di dalam tanda kurung):
@@ -113,7 +129,22 @@ Setelah checkout, transaksi mendapat kode unik (`PJM-YYYYMMDD-XXXX`). Pengembali
 bisa per-barang atau sekaligus semua barang dalam satu transaksi; begitu semua
 barang di satu transaksi kembali, status transaksi otomatis jadi "dikembalikan".
 
-### 6. Manajemen User & Hak Akses
+### 6. Import Excel/CSV
+
+Tersedia di menu **Manajemen Aset** ("Import Excel") dan **Data Guru/Siswa** ("Import Excel"):
+
+- **Import Aset**: kolom `kode_barang, kode_umum, kode_aset, nama_barang, kategori, tempat,
+  tahun_pembelian, dana_pembelian, keterangan`. `kode_barang` boleh dikosongkan (auto-generate).
+  Nama kategori/tempat/dana yang belum ada di master data akan dibuatkan otomatis. Baris dengan
+  kombinasi kode_umum + kode_aset yang sudah dipakai akan dilewati.
+- **Import Guru/Siswa**: kolom `nama, nip_nis, kelas_jabatan, telp`. Pilih tipe (Guru/Siswa)
+  sebelum upload — file yang sama formatnya dipakai untuk keduanya, hanya beda tujuan tabelnya.
+  NIP/NIS yang sudah terdaftar untuk tipe yang sama akan dilewati (anti-dobel saat re-upload).
+
+Kedua halaman menyediakan tombol "Unduh Template" (CSV) supaya format kolomnya pasti sesuai.
+Hasil import menampilkan jumlah baris berhasil, dan daftar baris yang dilewati/gagal beserta alasannya.
+
+### 7. Manajemen User & Hak Akses
 Dua role: **Super Admin** (akses semua fitur, tidak bisa dibatasi) dan
 **Petugas** (hak aksesnya dipilih per-fitur saat membuat/mengubah user: Kategori,
 Aset, Dana Pembelian, Lokasi, Kerusakan, Peminjaman, Data Guru/Siswa, dan

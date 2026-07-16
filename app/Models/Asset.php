@@ -59,8 +59,7 @@ class Asset extends Model
     // Generate nomor kode_barang berikutnya (bisa diedit user setelahnya)
     public static function generateNextKodeBarang(): string
     {
-        $last = static::withTrashed()
-            ->selectRaw('MAX(CAST(kode_barang AS UNSIGNED)) as max_kode')
+        $last = static::selectRaw('MAX(CAST(kode_barang AS UNSIGNED)) as max_kode')
             ->value('max_kode');
 
         $next = ($last ?? 0) + 1;

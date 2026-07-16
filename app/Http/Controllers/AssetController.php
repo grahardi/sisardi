@@ -2,15 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\AssetsImport;
 use App\Models\Asset;
 use App\Models\Category;
 use App\Models\FundingSource;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AssetController extends Controller
 {
+    public function importForm()
+    {
+        return view('assets.import');
+    }
+
+    public function importStore(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $import = new AssetsImport();
+        Excel::import($import, $request->file('file'));
+
+        $message = "{$import->imported} data aset berhasil diimport.";
+        if (count($import->errors)) {
+            return back()
+                ->with('success', $message)
+                ->withErrors($import->errors);
+        }
+
+        return redirect()->route('assets.index')->with('success', $message);
+    }
+
+    public function downloadTemplate()
+    {
+        $csv = "kode_barang,kode_umum,kode_aset,nama_barang,kategori,tempat,tahun_pembelian,dana_pembelian,keterangan\n";
+        $csv .= ",LPX,001,Laptop Asus X441,Laptop,Laboratorium Komputer,2023,Bosda,Contoh baris; kode_barang boleh dikosongkan\n";
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="template_import_aset.csv"',
+        ]);
+    }
     public function index(Request $request)
     {
         $query = Asset::with(['category', 'location', 'fundingSource']);

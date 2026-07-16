@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [AssetController::class, 'index'])->name('index');
         Route::get('/tambah', [AssetController::class, 'create'])->name('create');
         Route::post('/', [AssetController::class, 'store'])->name('store');
+        Route::get('/import', [AssetController::class, 'importForm'])->name('import.form');
+        Route::post('/import', [AssetController::class, 'importStore'])->name('import.store');
+        Route::get('/import/template', [AssetController::class, 'downloadTemplate'])->name('import.template');
         Route::get('/{asset}', [AssetController::class, 'show'])->name('show');
         Route::get('/{asset}/ubah', [AssetController::class, 'edit'])->name('edit');
         Route::put('/{asset}', [AssetController::class, 'update'])->name('update');
@@ -75,6 +78,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:peminjam')->prefix('peminjam')->name('borrowers.')->group(function () {
         Route::get('/', [BorrowerController::class, 'index'])->name('index');
         Route::post('/', [BorrowerController::class, 'store'])->name('store');
+        Route::get('/import', [BorrowerController::class, 'importForm'])->name('import.form');
+        Route::post('/import', [BorrowerController::class, 'importStore'])->name('import.store');
+        Route::get('/import/template', [BorrowerController::class, 'downloadTemplate'])->name('import.template');
         Route::put('/{borrower}', [BorrowerController::class, 'update'])->name('update');
         Route::delete('/{borrower}', [BorrowerController::class, 'destroy'])->name('destroy');
     });

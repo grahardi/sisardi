@@ -2,11 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BorrowersImport;
 use App\Models\Borrower;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BorrowerController extends Controller
 {
+    public function importForm()
+    {
+        return view('borrowers.import');
+    }
+
+    public function importStore(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:guru,siswa',
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $import = new BorrowersImport($request->type);
+        Excel::import($import, $request->file('file'));
+
+        $label = $request->type === 'guru' ? 'guru' : 'siswa';
+        $message = "{$import->imported} data {$label} berhasil diimport.";
+
+        if (count($import->errors)) {
+            return back()
+                ->with('success', $message)
+                ->withErrors($import->errors);
+        }
+
+        return redirect()->route('borrowers.index')->with('success', $message);
+    }
+
+    public function downloadTemplate(Request $request)
+    {
+        $type = $request->get('type', 'siswa');
+        $csv = "nama,nip_nis,kelas_jabatan,telp\n";
+        $csv .= $type === 'guru'
+            ? "Contoh Nama Guru,19800101 200003 1 001,Guru Matematika,081234567890\n"
+            : "Contoh Nama Siswa,1234567890,7A,081234567890\n";
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"template_import_{$type}.csv\"",
+        ]);
+    }
     public function index(Request $request)
     {
         $query = Borrower::query();

@@ -14,6 +14,7 @@
     </form>
     <div>
         <a href="{{ route('loans.cart') }}" class="btn btn-primary"><i class="bi bi-cart"></i> Buat Peminjaman</a>
+        <a href="{{ route('borrowers.import.form') }}" class="btn btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Import Excel</a>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg"></i> Tambah</button>
     </div>
 </div>

@@ -19,7 +19,10 @@
         </select>
         <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
     </form>
-    <a href="{{ route('assets.create') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Tambah Aset</a>
+    <div>
+        <a href="{{ route('assets.import.form') }}" class="btn btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Import Excel</a>
+        <a href="{{ route('assets.create') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Tambah Aset</a>
+    </div>
 </div>
 
 <div class="card border-0 shadow-sm">
