@@ -18,6 +18,15 @@
                     <input type="text" id="scanInput" class="form-control" placeholder="Scan atau ketik kode barang di sini..." autocomplete="off">
                 </div>
                 <div id="scanStatus" class="mt-2"></div>
+
+                <hr>
+                <button type="button" id="btnToggleCamera" class="btn btn-outline-primary">
+                    <i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP
+                </button>
+                <div id="cameraWrap" class="mt-2 d-none">
+                    <div id="cameraReader" style="max-width:340px;"></div>
+                    <div id="cameraHint" class="small text-muted mt-1">Arahkan kamera ke QR code barang. Butuh izin akses kamera dan koneksi HTTPS.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -107,5 +116,58 @@ function addLogEntry(data, success) {
     }
     scanLog.prepend(li);
 }
+
+// ==== Scan pakai kamera HP (html5-qrcode) ====
+const btnToggleCamera = document.getElementById('btnToggleCamera');
+const cameraWrap = document.getElementById('cameraWrap');
+let html5QrCode = null;
+let cameraRunning = false;
+let lastScannedCode = null;
+let lastScannedAt = 0;
+
+btnToggleCamera.addEventListener('click', function () {
+    if (cameraRunning) {
+        stopCamera();
+    } else {
+        startCamera();
+    }
+});
+
+function startCamera() {
+    cameraWrap.classList.remove('d-none');
+    btnToggleCamera.innerHTML = '<i class="bi bi-camera-video-off"></i> Matikan Kamera';
+
+    html5QrCode = new Html5Qrcode('cameraReader');
+    html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+            const now = Date.now();
+            // Cegah barang yang sama kescan berulang-ulang dalam waktu berdekatan
+            if (decodedText === lastScannedCode && (now - lastScannedAt) < 3000) return;
+            lastScannedCode = decodedText;
+            lastScannedAt = now;
+            processScan(decodedText.trim());
+        },
+        () => {} // diamkan error per-frame (biasanya cuma "QR tidak terdeteksi di frame ini")
+    ).then(() => { cameraRunning = true; })
+    .catch((err) => {
+        cameraWrap.classList.add('d-none');
+        btnToggleCamera.innerHTML = '<i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP';
+        scanStatus.innerHTML = `<div class="alert alert-danger py-2 mb-0">Tidak bisa mengakses kamera: ${err}. Pastikan mengizinkan akses kamera dan situs diakses lewat HTTPS.</div>`;
+    });
+}
+
+function stopCamera() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            cameraRunning = false;
+            cameraWrap.classList.add('d-none');
+            btnToggleCamera.innerHTML = '<i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP';
+        });
+    }
+}
 </script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 @endsection

@@ -33,9 +33,16 @@
             <div class="card-header bg-white fw-semibold">2. Scan / Cari & Tambah Barang</div>
             <div class="card-body">
                 <label class="form-label small text-muted mb-1">Scan Kode Barang / QR Code (tersambung langsung dengan barcode scanner)</label>
-                <div class="input-group mb-3">
+                <div class="input-group mb-2">
                     <span class="input-group-text bg-white"><i class="bi bi-upc-scan"></i></span>
                     <input type="text" id="scanCodeInput" class="form-control" placeholder="Scan atau ketik kode barang, lalu Enter..." autocomplete="off">
+                </div>
+                <button type="button" id="btnToggleCamera" class="btn btn-sm btn-outline-primary mb-3">
+                    <i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP
+                </button>
+                <div id="cameraWrap" class="mb-3 d-none">
+                    <div id="cameraReader" style="max-width:320px;"></div>
+                    <div class="small text-muted mt-1">Arahkan kamera ke QR code barang. Butuh izin akses kamera dan koneksi HTTPS.</div>
                 </div>
                 <label class="form-label small text-muted mb-1">Atau cari manual</label>
                 <input type="text" id="assetSearch" class="form-control mb-2" placeholder="Ketik nama barang / kode barang...">
@@ -171,13 +178,66 @@ if (scanCodeInput) {
             e.preventDefault();
             const kode = this.value.trim();
             if (!kode) return;
-            fetch(`{{ route('loans.cart.scan') }}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify({ kode: kode })
-            }).then(() => location.reload());
+            scanAndAddCode(kode);
         }
     });
+}
+
+function scanAndAddCode(kode) {
+    fetch(`{{ route('loans.cart.scan') }}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({ kode: kode })
+    }).then(() => location.reload());
+}
+
+// ==== Scan pakai kamera HP (html5-qrcode) ====
+const btnToggleCamera = document.getElementById('btnToggleCamera');
+const cameraWrap = document.getElementById('cameraWrap');
+let html5QrCode = null;
+let cameraRunning = false;
+
+if (btnToggleCamera) {
+    btnToggleCamera.addEventListener('click', function () {
+        if (cameraRunning) {
+            stopCamera();
+        } else {
+            startCamera();
+        }
+    });
+}
+
+function startCamera() {
+    cameraWrap.classList.remove('d-none');
+    btnToggleCamera.innerHTML = '<i class="bi bi-camera-video-off"></i> Matikan Kamera';
+
+    html5QrCode = new Html5Qrcode('cameraReader');
+    html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+            html5QrCode.stop().then(() => {
+                scanAndAddCode(decodedText.trim());
+            });
+        },
+        () => {}
+    ).then(() => { cameraRunning = true; })
+    .catch((err) => {
+        cameraWrap.classList.add('d-none');
+        btnToggleCamera.innerHTML = '<i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP';
+        alert('Tidak bisa mengakses kamera: ' + err + '. Pastikan mengizinkan akses kamera dan situs diakses lewat HTTPS.');
+    });
+}
+
+function stopCamera() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            cameraRunning = false;
+            cameraWrap.classList.add('d-none');
+            btnToggleCamera.innerHTML = '<i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP';
+        });
+    }
 }
 
 // ==== Pencarian Barang ====
@@ -230,4 +290,5 @@ function showQr(kode, nama) {
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 @endsection

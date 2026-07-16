@@ -7,6 +7,8 @@ project Laravel yang berdiri sendiri — jadi tidak perlu `composer create-proje
 
 ## Changelog
 
+- **Baru**: **Scan pakai kamera HP/laptop langsung dari browser** (library `html5-qrcode`) di
+  halaman Peminjaman Cepat & Pengembalian Cepat — tidak perlu alat scanner fisik lagi.
 - **Baru**: **Peminjaman & Pengembalian Cepat via Scan Kode Barang/QR**.
 - **Baru**: **QR Code** per barang — bisa dicetak sebagai label dan dipakai untuk pencarian/peminjaman.
 - **Baru**: **Foto Barang** pada Manajemen Aset (upload, tampil di daftar & detail, bisa dihapus/diganti).
@@ -179,16 +181,28 @@ menegakkan pembatasan ini di level route.
 
 ### 8. Peminjaman & Pengembalian Cepat (Scan Kode Barang/QR)
 
-QR/barcode scanner USB/Bluetooth standar bekerja seperti keyboard (mengetik lalu Enter),
-jadi fitur ini tidak butuh library scanner kamera — cukup arahkan scanner ke kode/QR barang.
+Dua cara scan didukung, keduanya tanpa install apa pun di HP/perangkat:
 
+- **Scanner fisik** (barcode/QR gun USB atau Bluetooth): bekerja seperti keyboard (mengetik lalu
+  Enter), otomatis kompatibel dengan kotak input scan di halaman-halaman berikut.
+- **Kamera HP/laptop langsung dari browser**: tombol **"Scan Pakai Kamera HP"** memakai library
+  `html5-qrcode` (client-side, lewat CDN) untuk membuka kamera perangkat dan membaca QR code
+  secara langsung — tidak perlu aplikasi tambahan, cukup browser modern (Chrome/Safari/Firefox).
+
+  > ⚠️ **Penting**: fitur kamera browser (`getUserMedia`) hanya diizinkan browser di halaman
+  > **HTTPS**, atau di `localhost` saat development. Kalau server produksi masih pakai HTTP biasa,
+  > tombol kamera akan gagal minta izin — scanner fisik & input manual tetap berfungsi normal
+  > di HTTP, hanya opsi kamera browser yang butuh HTTPS.
+
+Halaman yang tersedia:
 - **Peminjaman cepat**: di halaman keranjang peminjaman ("Buat Peminjaman Baru"), ada kotak
-  "Scan Kode Barang / QR Code" terpisah dari pencarian manual. Setiap scan langsung menambahkan
-  barang itu ke keranjang (kalau tersedia), tanpa perlu cari manual satu-satu.
-- **Pengembalian cepat**: menu Peminjaman → **"Pengembalian Cepat (Scan)"**. Ini halaman khusus
-  untuk sesi scan berturut-turut — setiap kode yang discan langsung dicek statusnya; kalau sedang
-  dipinjam, langsung ditandai dikembalikan saat itu juga, dan tercatat di panel "Riwayat Scan Sesi
-  Ini" di sisi kanan (tanpa reload halaman, jadi bisa scan banyak barang berturut-turut dengan cepat).
+  "Scan Kode Barang / QR Code" + tombol kamera, terpisah dari pencarian manual. Setiap scan
+  langsung menambahkan barang itu ke keranjang (kalau tersedia).
+- **Pengembalian cepat**: menu Peminjaman → **"Pengembalian Cepat (Scan)"**. Halaman khusus untuk
+  sesi scan berturut-turut (scanner fisik maupun kamera) — setiap kode yang discan langsung dicek
+  statusnya; kalau sedang dipinjam, langsung ditandai dikembalikan saat itu juga, tercatat di panel
+  "Riwayat Scan Sesi Ini" tanpa reload halaman. Mode kamera otomatis mencegah barang yang sama
+  terbaca berulang dalam 3 detik (supaya tidak double-scan saat kamera masih mengarah ke QR yang sama).
 
 ### 9. QR Code Barang
 
