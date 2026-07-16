@@ -91,12 +91,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [LoanController::class, 'index'])->name('index');
         Route::get('/keranjang', [LoanController::class, 'cart'])->name('cart');
         Route::post('/keranjang/tambah', [LoanController::class, 'addToCart'])->name('cart.add');
+        Route::post('/keranjang/scan', [LoanController::class, 'addToCartByCode'])->name('cart.scan');
         Route::post('/keranjang/hapus', [LoanController::class, 'removeFromCart'])->name('cart.remove');
         Route::post('/keranjang/pilih-peminjam', [LoanController::class, 'chooseBorrower'])->name('cart.choose_borrower');
         Route::post('/keranjang/batal-peminjam', [LoanController::class, 'removeBorrower'])->name('cart.remove_borrower');
         Route::post('/keranjang/kosongkan', [LoanController::class, 'clearCart'])->name('cart.clear');
         Route::post('/checkout', [LoanController::class, 'checkout'])->name('checkout');
         Route::get('/cari-aset', [LoanController::class, 'searchAssets'])->name('search_assets');
+        Route::get('/pengembalian-cepat', [LoanController::class, 'quickReturnForm'])->name('quick_return');
+        Route::post('/pengembalian-cepat/scan', [LoanController::class, 'quickReturnScan'])->name('quick_return.scan');
         Route::get('/{loan}', [LoanController::class, 'show'])->name('show');
         Route::post('/{loan}/kembalikan', [LoanController::class, 'returnAll'])->name('return_all');
         Route::post('/item/{loanItem}/kembalikan', [LoanController::class, 'returnItem'])->name('return_item');

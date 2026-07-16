@@ -86,6 +86,30 @@ class LoanController extends Controller
         return back()->with('success', 'Barang ditambahkan ke keranjang peminjaman.');
     }
 
+    // Tambah ke keranjang lewat scan kode barang / QR code (cocok untuk barcode scanner fisik)
+    public function addToCartByCode(Request $request)
+    {
+        $request->validate(['kode' => 'required|string']);
+
+        $kode = trim($request->kode);
+        $asset = Asset::where('kode_barang', $kode)->first();
+
+        if (! $asset) {
+            return back()->withErrors(['error' => "Kode Barang '{$kode}' tidak ditemukan."]);
+        }
+        if (! $asset->isAvailable()) {
+            return back()->withErrors(['error' => "Barang '{$asset->nama_barang}' ({$kode}) tidak tersedia untuk dipinjam."]);
+        }
+
+        $cart = session(self::CART_SESSION_KEY, ['borrower_id' => null, 'asset_ids' => []]);
+        if (! in_array($asset->id, $cart['asset_ids'])) {
+            $cart['asset_ids'][] = $asset->id;
+        }
+        session([self::CART_SESSION_KEY => $cart]);
+
+        return back()->with('success', "'{$asset->nama_barang}' ({$kode}) ditambahkan ke keranjang.");
+    }
+
     public function removeFromCart(Request $request)
     {
         $request->validate(['asset_id' => 'required|integer']);
@@ -202,5 +226,53 @@ class LoanController extends Controller
         $loanItem->loan->refreshStatus();
 
         return back()->with('success', 'Barang berhasil dikembalikan.');
+    }
+
+    // ================= PENGEMBALIAN CEPAT (SCAN) =================
+
+    public function quickReturnForm()
+    {
+        return view('loans.quick_return');
+    }
+
+    // Endpoint AJAX: scan/ketik kode barang -> langsung dikembalikan kalau sedang dipinjam
+    public function quickReturnScan(Request $request)
+    {
+        $request->validate(['kode' => 'required|string']);
+
+        $kode = trim($request->kode);
+        $asset = Asset::where('kode_barang', $kode)->first();
+
+        if (! $asset) {
+            return response()->json(['success' => false, 'message' => "Kode Barang '{$kode}' tidak ditemukan."], 404);
+        }
+
+        $loanItem = $asset->loanItems()->where('is_returned', false)->latest()->first();
+
+        if (! $loanItem) {
+            return response()->json([
+                'success' => false,
+                'message' => "'{$asset->nama_barang}' ({$kode}) sedang tidak dalam status dipinjam.",
+            ], 422);
+        }
+
+        $loanItem->update([
+            'is_returned' => true,
+            'returned_at' => now()->toDateString(),
+            'kondisi_kembali' => $loanItem->kondisi_kembali ?: 'baik',
+        ]);
+        $loanItem->loan->refreshStatus();
+
+        return response()->json([
+            'success' => true,
+            'message' => "'{$asset->nama_barang}' berhasil dikembalikan.",
+            'data' => [
+                'kode_barang' => $asset->kode_barang,
+                'nama_barang' => $asset->nama_barang,
+                'peminjam' => $loanItem->loan->borrower->name ?? '-',
+                'transaction_code' => $loanItem->loan->transaction_code,
+                'waktu' => now()->format('d/m/Y H:i'),
+            ],
+        ]);
     }
 }

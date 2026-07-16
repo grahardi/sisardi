@@ -15,6 +15,8 @@
     </form>
     <a href="{{ route('loans.cart') }}" class="btn btn-success"><i class="bi bi-cart-plus"></i> Buat Peminjaman Baru</a>
 </div>
+<div class="mb-3">
+    <a href="{{ route('loans.quick_return') }}" class="btn btn-outline-primary"><i class="bi bi-upc-scan"></i> Pengembalian Cepat (Scan)</a>
 
 <div class="card border-0 shadow-sm">
     <div class="card-body table-responsive">

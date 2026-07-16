@@ -56,6 +56,7 @@
                     <td>{{ $a->tahun_pembelian }}</td>
                     <td><span class="badge badge-status-{{ $a->status }}">{{ str_replace('_',' ',$a->status) }}</span></td>
                     <td>
+                        <button class="btn btn-sm btn-outline-secondary btn-qr" title="Lihat QR" data-kode="{{ $a->kode_barang }}" data-nama="{{ $a->nama_barang }}"><i class="bi bi-qr-code"></i></button>
                         <a href="{{ route('assets.edit', $a) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                         <form action="{{ route('assets.destroy', $a) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus aset ini?')">
                             @csrf @method('DELETE')
@@ -71,4 +72,42 @@
         {{ $assets->links() }}
     </div>
 </div>
+
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-header">
+                <h6 class="modal-title">QR Code Barang</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="qrModalCode" class="d-flex justify-content-center mb-2"></div>
+                <div class="fw-semibold" id="qrModalKode"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer"></i> Cetak</button>
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+let qrModalInstance;
+document.querySelectorAll('.btn-qr').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const kode = this.getAttribute('data-kode');
+        const nama = this.getAttribute('data-nama');
+        document.getElementById('qrModalKode').textContent = kode + ' - ' + nama;
+        const qrContainer = document.getElementById('qrModalCode');
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, { text: kode, width: 160, height: 160 });
+        qrModalInstance = qrModalInstance || new bootstrap.Modal(document.getElementById('qrModal'));
+        qrModalInstance.show();
+    });
+});
+</script>
 @endsection

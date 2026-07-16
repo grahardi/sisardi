@@ -3,7 +3,7 @@
 @section('content')
 <div class="row g-3">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm mb-3">
             <div class="card-body">
                 @if($asset->foto)
                     <img src="{{ $asset->foto_url }}" alt="Foto {{ $asset->nama_barang }}" class="img-fluid rounded mb-3" style="max-height:250px;object-fit:cover;">
@@ -25,6 +25,18 @@
                     <tr><th>Keterangan</th><td>{{ $asset->keterangan }}</td></tr>
                 </table>
                 <a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-outline-primary mt-2">Ubah Data</a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm" id="printArea">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-qr-code me-1"></i> Label QR Barang</div>
+            <div class="card-body text-center">
+                <div id="qrCode" class="d-flex justify-content-center mb-2"></div>
+                <div class="fw-semibold">{{ $asset->kode_barang }}</div>
+                <div class="small text-muted">{{ $asset->nama_barang }}</div>
+                <button class="btn btn-sm btn-outline-secondary mt-2 no-print" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Cetak Label
+                </button>
             </div>
         </div>
     </div>
@@ -61,4 +73,26 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('styles')
+<style>
+@media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { position: absolute; top: 0; left: 0; width: 100%; border: none !important; box-shadow: none !important; }
+    .no-print { display: none !important; }
+}
+</style>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+new QRCode(document.getElementById('qrCode'), {
+    text: '{{ $asset->kode_barang }}',
+    width: 150,
+    height: 150,
+});
+</script>
 @endsection

@@ -7,6 +7,8 @@ project Laravel yang berdiri sendiri — jadi tidak perlu `composer create-proje
 
 ## Changelog
 
+- **Baru**: **Peminjaman & Pengembalian Cepat via Scan Kode Barang/QR**.
+- **Baru**: **QR Code** per barang — bisa dicetak sebagai label dan dipakai untuk pencarian/peminjaman.
 - **Baru**: **Foto Barang** pada Manajemen Aset (upload, tampil di daftar & detail, bisa dihapus/diganti).
 - **Baru**: **Ikon Kategori** — pilih salah satu dari 16 ikon (Komputer, Meja, Kursi, Printer, dll) saat tambah/ubah kategori.
 - Ganti tampilan ke **AdminLTE 4** (colorful theme).
@@ -174,6 +176,33 @@ Manajemen User). Middleware `permission:<fitur>` di `routes/web.php` yang
 menegakkan pembatasan ini di level route.
 
 ---
+
+### 8. Peminjaman & Pengembalian Cepat (Scan Kode Barang/QR)
+
+QR/barcode scanner USB/Bluetooth standar bekerja seperti keyboard (mengetik lalu Enter),
+jadi fitur ini tidak butuh library scanner kamera — cukup arahkan scanner ke kode/QR barang.
+
+- **Peminjaman cepat**: di halaman keranjang peminjaman ("Buat Peminjaman Baru"), ada kotak
+  "Scan Kode Barang / QR Code" terpisah dari pencarian manual. Setiap scan langsung menambahkan
+  barang itu ke keranjang (kalau tersedia), tanpa perlu cari manual satu-satu.
+- **Pengembalian cepat**: menu Peminjaman → **"Pengembalian Cepat (Scan)"**. Ini halaman khusus
+  untuk sesi scan berturut-turut — setiap kode yang discan langsung dicek statusnya; kalau sedang
+  dipinjam, langsung ditandai dikembalikan saat itu juga, dan tercatat di panel "Riwayat Scan Sesi
+  Ini" di sisi kanan (tanpa reload halaman, jadi bisa scan banyak barang berturut-turut dengan cepat).
+
+### 9. QR Code Barang
+
+Setiap barang punya QR code yang berisi Kode Barang-nya (di-generate langsung di browser
+pakai library `qrcodejs`, tidak perlu request ke server pihak ketiga):
+
+- Di halaman **detail aset**: ada kartu "Label QR Barang" lengkap dengan tombol "Cetak Label"
+  (memakai CSS print khusus supaya yang tercetak cuma label QR-nya saja).
+- Di halaman **daftar aset**: tombol ikon QR di kolom Aksi tiap baris, membuka modal QR + tombol cetak.
+- Di halaman **keranjang peminjaman**, hasil pencarian barang juga punya tombol ikon QR
+  untuk melihat/mencetak ulang label kalau perlu.
+
+Alur kerja yang disarankan: cetak label QR dari halaman detail/daftar aset, tempel di barang
+fisik, lalu gunakan scanner untuk peminjaman cepat maupun pengembalian cepat.
 
 ## Catatan Teknis
 

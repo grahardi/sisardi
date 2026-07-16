@@ -29,9 +29,15 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold">2. Cari & Tambah Barang</div>
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white fw-semibold">2. Scan / Cari & Tambah Barang</div>
             <div class="card-body">
+                <label class="form-label small text-muted mb-1">Scan Kode Barang / QR Code (tersambung langsung dengan barcode scanner)</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-white"><i class="bi bi-upc-scan"></i></span>
+                    <input type="text" id="scanCodeInput" class="form-control" placeholder="Scan atau ketik kode barang, lalu Enter..." autocomplete="off">
+                </div>
+                <label class="form-label small text-muted mb-1">Atau cari manual</label>
                 <input type="text" id="assetSearch" class="form-control mb-2" placeholder="Ketik nama barang / kode barang...">
                 <div id="assetResults" class="list-group"></div>
             </div>
@@ -94,6 +100,28 @@
         @endif
     </div>
 </div>
+
+<!-- Modal QR Code Barang -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-header">
+                <h6 class="modal-title" id="qrModalLabel">QR Code Barang</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="qrModalCode" class="d-flex justify-content-center mb-2"></div>
+                <div class="fw-semibold" id="qrModalKode"></div>
+                <small class="text-muted">Tempel/cetak label ini pada barang untuk memudahkan scan.</small>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer"></i> Cetak</button>
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -134,6 +162,24 @@ function chooseBorrower(id) {
     }).then(() => location.reload());
 }
 
+// ==== Scan Kode Barang (peminjaman cepat) ====
+const scanCodeInput = document.getElementById('scanCodeInput');
+if (scanCodeInput) {
+    scanCodeInput.focus();
+    scanCodeInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const kode = this.value.trim();
+            if (!kode) return;
+            fetch(`{{ route('loans.cart.scan') }}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ kode: kode })
+            }).then(() => location.reload());
+        }
+    });
+}
+
 // ==== Pencarian Barang ====
 const assetSearchEl = document.getElementById('assetSearch');
 if (assetSearchEl) {
@@ -151,8 +197,12 @@ if (assetSearchEl) {
                         const item = document.createElement('div');
                         item.className = 'list-group-item d-flex justify-content-between align-items-center';
                         item.innerHTML = `<div>${a.nama_barang}<br><small class="text-muted">${a.kode_barang} - ${a.kode_umum}/${a.kode_aset}</small></div>
-                            <button class="btn btn-sm btn-success">Tambah</button>`;
-                        item.querySelector('button').addEventListener('click', () => addAsset(a.id));
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-secondary btn-qr" title="Lihat QR"><i class="bi bi-qr-code"></i></button>
+                                <button class="btn btn-sm btn-success btn-add">Tambah</button>
+                            </div>`;
+                        item.querySelector('.btn-add').addEventListener('click', () => addAsset(a.id));
+                        item.querySelector('.btn-qr').addEventListener('click', () => showQr(a.kode_barang, a.nama_barang));
                         box.appendChild(item);
                     });
                 });
@@ -167,5 +217,17 @@ function addAsset(id) {
         body: JSON.stringify({ asset_id: id })
     }).then(() => location.reload());
 }
+
+// ==== QR Code ====
+let qrModalInstance;
+function showQr(kode, nama) {
+    document.getElementById('qrModalKode').textContent = kode + ' - ' + nama;
+    const qrContainer = document.getElementById('qrModalCode');
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, { text: kode, width: 160, height: 160 });
+    qrModalInstance = qrModalInstance || new bootstrap.Modal(document.getElementById('qrModal'));
+    qrModalInstance.show();
+}
 </script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 @endsection
