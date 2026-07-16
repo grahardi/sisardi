@@ -59,6 +59,22 @@
     </div>
     @endif
 
+    <div class="col-md-4">
+        <label class="form-label">Foto Barang</label>
+        <input type="file" name="foto" class="form-control" accept="image/png,image/jpeg,image/webp">
+        <small class="text-muted">JPG/PNG/WEBP, maksimal 2MB.</small>
+
+        @if($a && $a->foto)
+            <div class="mt-2">
+                <img src="{{ $a->foto_url }}" alt="Foto {{ $a->nama_barang }}" class="img-thumbnail" style="max-height:120px;">
+                <div class="form-check mt-1">
+                    <input type="checkbox" name="hapus_foto" value="1" class="form-check-input" id="hapusFoto">
+                    <label class="form-check-label small text-danger" for="hapusFoto">Hapus foto ini</label>
+                </div>
+            </div>
+        @endif
+    </div>
+
     <div class="col-12">
         <label class="form-label">Keterangan</label>
         <textarea name="keterangan" class="form-control" rows="3">{{ old('keterangan', $a->keterangan ?? '') }}</textarea>

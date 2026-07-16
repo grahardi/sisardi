@@ -3,7 +3,7 @@
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <form method="POST" action="{{ route('assets.store') }}">
+        <form method="POST" action="{{ route('assets.store') }}" enctype="multipart/form-data">
             @csrf
             @include('assets._form', ['nextKode' => $nextKode ?? null])
             <button class="btn btn-success mt-3"><i class="bi bi-save"></i> Simpan Aset</button>

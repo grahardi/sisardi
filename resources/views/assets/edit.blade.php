@@ -3,7 +3,7 @@
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <form method="POST" action="{{ route('assets.update', $asset) }}">
+        <form method="POST" action="{{ route('assets.update', $asset) }}" enctype="multipart/form-data">
             @csrf @method('PUT')
             @include('assets._form', ['asset' => $asset])
             <button class="btn btn-primary mt-3"><i class="bi bi-save"></i> Simpan Perubahan</button>

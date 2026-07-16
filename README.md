@@ -7,19 +7,30 @@ project Laravel yang berdiri sendiri — jadi tidak perlu `composer create-proje
 
 ## Changelog
 
+- **Baru**: **Foto Barang** pada Manajemen Aset (upload, tampil di daftar & detail, bisa dihapus/diganti).
+- **Baru**: **Ikon Kategori** — pilih salah satu dari 16 ikon (Komputer, Meja, Kursi, Printer, dll) saat tambah/ubah kategori.
+- Ganti tampilan ke **AdminLTE 4** (colorful theme).
 - **Fix**: `Asset::generateNextKodeBarang()` sempat memanggil `withTrashed()` padahal
   tabel `assets` tidak pakai Soft Delete — menyebabkan `BadMethodCallException`. Sudah diperbaiki.
 - **Baru**: fitur **Import Excel/CSV** untuk data Aset dan data Guru/Siswa (lihat bagian
   "Fitur Import Excel" di bawah). Butuh 1 package tambahan: `maatwebsite/excel`.
 
-## 0. Install package tambahan untuk import Excel
+## 0. Install package tambahan
 
 ```bash
 composer require maatwebsite/excel
 ```
 
-Tidak perlu publish config apa pun — sudah cukup dengan `Maatwebsite\Excel\Facades\Excel`
-yang langsung dipakai di controller.
+### Wajib: buat symlink storage untuk foto barang
+
+Foto barang disimpan di `storage/app/public/assets` dan diakses lewat `public/storage`.
+Setelah migrate, jalankan sekali:
+
+```bash
+php artisan storage:link
+```
+
+Kalau lupa menjalankan ini, foto akan gagal tampil (404) walau berhasil ter-upload.
 
 ## 1. Salin folder ke project Laravel kamu
 
@@ -98,9 +109,20 @@ tidak bisa dihapus).
 Field: Kode Barang (nomor urut auto-generate, tapi bisa diedit & harus unik),
 Kode Umum (mis. `LPX` untuk semua laptop), Kode Aset (unik **di dalam** Kode Umum
 yang sama — jadi dua barang beda Kode Umum boleh punya Kode Aset yang sama),
-Nama Barang, Kategori, Tempat, Tahun Pembelian, Dana Pembelian, Keterangan.
+Nama Barang, Kategori, Tempat, Tahun Pembelian, Dana Pembelian, **Foto Barang**, Keterangan.
 Status aset (`baik` / `rusak` / `dalam_perbaikan`) di-update otomatis dari menu
 History Perbaikan, bukan diedit manual.
+
+Foto barang: opsional, format JPG/PNG/WEBP maksimal 2MB, tampil sebagai thumbnail
+di daftar aset dan foto besar di halaman detail. Saat mengubah data, ada opsi
+"Hapus foto ini" untuk menghapus tanpa mengganti dengan foto baru.
+
+### 2b. Ikon Kategori
+Saat tambah/ubah kategori, ada galeri 16 pilihan ikon (Komputer/Laptop, PC, Printer,
+Proyektor, Meja, Kursi, Lemari/Rak, Buku, Alat Olahraga, Alat Musik, Alat Lab,
+Alat Kebersihan, Elektronik/Listrik, Kendaraan, Bangunan, Umum/Lainnya) — dipakai
+memakai Bootstrap Icons + Font Awesome Free (keduanya sudah dimuat lewat CDN di layout).
+Ikon terpilih ditampilkan di depan nama kategori pada tampilan tree.
 
 ### 3. Dana Pembelian
 CRUD sederhana (tambah/ubah/hapus) — Bosda, Bos Pusat, Komite, dan bisa tambah

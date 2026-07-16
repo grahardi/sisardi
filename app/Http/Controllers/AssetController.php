@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\FundingSource;
 use App\Models\Location;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -89,6 +90,10 @@ class AssetController extends Controller
     {
         $data = $this->validateData($request);
 
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('assets', 'public');
+        }
+
         Asset::create($data);
 
         return redirect()->route('assets.index')->with('success', 'Aset berhasil ditambahkan.');
@@ -107,6 +112,18 @@ class AssetController extends Controller
     {
         $data = $this->validateData($request, $asset);
 
+        if ($request->boolean('hapus_foto') && $asset->foto) {
+            Storage::disk('public')->delete($asset->foto);
+            $data['foto'] = null;
+        }
+
+        if ($request->hasFile('foto')) {
+            if ($asset->foto) {
+                Storage::disk('public')->delete($asset->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('assets', 'public');
+        }
+
         $asset->update($data);
 
         return redirect()->route('assets.index')->with('success', 'Aset berhasil diperbarui.');
@@ -116,6 +133,10 @@ class AssetController extends Controller
     {
         if ($asset->isBorrowed()) {
             return back()->withErrors(['error' => 'Aset sedang dipinjam, tidak bisa dihapus.']);
+        }
+
+        if ($asset->foto) {
+            Storage::disk('public')->delete($asset->foto);
         }
 
         $asset->delete();
@@ -133,7 +154,7 @@ class AssetController extends Controller
     {
         $assetId = $asset?->id;
 
-        return $request->validate([
+        $data = $request->validate([
             'kode_barang' => [
                 'required', 'string', 'max:50',
                 Rule::unique('assets', 'kode_barang')->ignore($assetId),
@@ -149,9 +170,17 @@ class AssetController extends Controller
             'tahun_pembelian' => 'nullable|digits:4|integer|min:1990|max:' . (date('Y') + 1),
             'funding_source_id' => 'nullable|exists:funding_sources,id',
             'keterangan' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'kode_aset.unique' => 'Kode Aset ini sudah dipakai pada Kode Umum yang sama.',
             'kode_barang.unique' => 'Kode Barang sudah digunakan aset lain.',
+            'foto.image' => 'File foto harus berupa gambar.',
+            'foto.max' => 'Ukuran foto maksimal 2MB.',
         ]);
+
+        // 'foto' hanya dipakai untuk validasi upload; path finalnya diisi terpisah di store()/update()
+        unset($data['foto']);
+
+        return $data;
     }
 }

@@ -11,7 +11,8 @@ class CategoryController extends Controller
     {
         $tree = Category::tree();
         $allCategories = Category::orderBy('name')->get(); // untuk dropdown pilih induk
-        return view('categories.index', compact('tree', 'allCategories'));
+        $iconOptions = Category::iconOptions();
+        return view('categories.index', compact('tree', 'allCategories', 'iconOptions'));
     }
 
     public function store(Request $request)
@@ -19,6 +20,7 @@ class CategoryController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'parent_id' => 'nullable|exists:categories,id',
+            'icon' => 'nullable|string|max:100',
         ]);
 
         Category::create($data);
@@ -31,6 +33,7 @@ class CategoryController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'parent_id' => 'nullable|exists:categories,id',
+            'icon' => 'nullable|string|max:100',
         ]);
 
         if ($data['parent_id'] == $category->id) {

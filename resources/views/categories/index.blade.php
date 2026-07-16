@@ -33,10 +33,12 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" name="parent_id" id="addParentId">
+                <input type="hidden" name="icon" id="addIconInput" value="bi bi-folder2">
                 <div class="mb-3">
                     <label class="form-label">Nama Kategori</label>
                     <input type="text" name="name" class="form-control" required>
                 </div>
+                @include('categories._icon_picker', ['inputId' => 'addIconInput'])
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Batal</button>
@@ -70,6 +72,8 @@
                         @endforeach
                     </select>
                 </div>
+                <input type="hidden" name="icon" id="editIconInput">
+                @include('categories._icon_picker', ['inputId' => 'editIconInput'])
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Batal</button>
@@ -96,9 +100,33 @@ document.getElementById('editCategoryModal').addEventListener('show.bs.modal', f
     const id = button.getAttribute('data-id');
     const name = button.getAttribute('data-name');
     const parent = button.getAttribute('data-parent');
+    const icon = button.getAttribute('data-icon') || 'bi bi-folder2';
     document.getElementById('editName').value = name;
     document.getElementById('editParentId').value = parent && parent !== '' ? parent : '';
+    document.getElementById('editIconInput').value = icon;
     document.getElementById('editCategoryForm').action = '/kategori/' + id;
+    highlightIcon('editIconInput', icon);
+});
+
+function highlightIcon(inputId, iconClass) {
+    document.querySelectorAll(`.icon-picker[data-target="${inputId}"] .icon-option`).forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-icon') === iconClass);
+    });
+}
+
+document.querySelectorAll('.icon-picker').forEach(picker => {
+    const targetId = picker.getAttribute('data-target');
+    picker.querySelectorAll('.icon-option').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById(targetId).value = this.getAttribute('data-icon');
+            highlightIcon(targetId, this.getAttribute('data-icon'));
+        });
+    });
+});
+
+// set default highlight untuk modal tambah saat pertama dibuka
+document.getElementById('addCategoryModal').addEventListener('shown.bs.modal', function () {
+    highlightIcon('addIconInput', document.getElementById('addIconInput').value);
 });
 </script>
 @endsection

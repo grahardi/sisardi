@@ -5,6 +5,13 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm">
             <div class="card-body">
+                @if($asset->foto)
+                    <img src="{{ $asset->foto_url }}" alt="Foto {{ $asset->nama_barang }}" class="img-fluid rounded mb-3" style="max-height:250px;object-fit:cover;">
+                @else
+                    <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded mb-3" style="height:150px;">
+                        <i class="bi bi-image fs-1"></i>
+                    </div>
+                @endif
                 <h5>{{ $asset->nama_barang }}</h5>
                 <span class="badge badge-status-{{ $asset->status }} mb-2">{{ str_replace('_',' ',$asset->status) }}</span>
                 <table class="table table-borderless mb-0">

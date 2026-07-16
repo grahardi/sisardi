@@ -6,6 +6,7 @@
     <title>@yield('title', 'Dashboard') - SiSardi</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4/dist/css/adminlte.min.css">
 
@@ -36,6 +37,13 @@
 
         .tree ul { list-style: none; padding-left: 1.25rem; }
         .tree > ul { padding-left: 0; }
+
+        .icon-picker .icon-option { width: 46px; height: 46px; font-size: 1.1rem; }
+        .icon-picker .icon-option.active {
+            background: linear-gradient(135deg, var(--sisardi-1), var(--sisardi-2));
+            color: #fff;
+            border-color: transparent;
+        }
     </style>
     @yield('styles')
 </head>

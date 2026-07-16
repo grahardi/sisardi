@@ -45,15 +45,15 @@ class DatabaseSeeder extends Seeder
         }
 
         // ============ KATEGORI (contoh tree) ============
-        $elektronik = Category::firstOrCreate(['name' => 'Elektronik', 'slug' => 'elektronik']);
-        Category::firstOrCreate(['name' => 'Laptop', 'slug' => 'laptop', 'parent_id' => $elektronik->id]);
-        Category::firstOrCreate(['name' => 'Proyektor/LCD', 'slug' => 'proyektor-lcd', 'parent_id' => $elektronik->id]);
-        Category::firstOrCreate(['name' => 'Printer', 'slug' => 'printer', 'parent_id' => $elektronik->id]);
+        $elektronik = Category::firstOrCreate(['name' => 'Elektronik', 'slug' => 'elektronik'], ['icon' => 'bi bi-lightning-charge']);
+        Category::firstOrCreate(['name' => 'Laptop', 'slug' => 'laptop', 'parent_id' => $elektronik->id], ['icon' => 'bi bi-laptop']);
+        Category::firstOrCreate(['name' => 'Proyektor/LCD', 'slug' => 'proyektor-lcd', 'parent_id' => $elektronik->id], ['icon' => 'bi bi-projector']);
+        Category::firstOrCreate(['name' => 'Printer', 'slug' => 'printer', 'parent_id' => $elektronik->id], ['icon' => 'bi bi-printer']);
 
-        $furnitur = Category::firstOrCreate(['name' => 'Furnitur', 'slug' => 'furnitur']);
-        Category::firstOrCreate(['name' => 'Meja', 'slug' => 'meja', 'parent_id' => $furnitur->id]);
-        Category::firstOrCreate(['name' => 'Kursi', 'slug' => 'kursi', 'parent_id' => $furnitur->id]);
+        $furnitur = Category::firstOrCreate(['name' => 'Furnitur', 'slug' => 'furnitur'], ['icon' => 'fa-solid fa-box-archive']);
+        Category::firstOrCreate(['name' => 'Meja', 'slug' => 'meja', 'parent_id' => $furnitur->id], ['icon' => 'fa-solid fa-table']);
+        Category::firstOrCreate(['name' => 'Kursi', 'slug' => 'kursi', 'parent_id' => $furnitur->id], ['icon' => 'fa-solid fa-chair']);
 
-        Category::firstOrCreate(['name' => 'Alat Olahraga', 'slug' => 'alat-olahraga']);
+        Category::firstOrCreate(['name' => 'Alat Olahraga', 'slug' => 'alat-olahraga'], ['icon' => 'fa-solid fa-dumbbell']);
     }
 }

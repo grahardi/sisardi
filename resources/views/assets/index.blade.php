@@ -30,6 +30,7 @@
         <table class="table table-hover align-middle">
             <thead>
                 <tr>
+                    <th width="60">Foto</th>
                     <th>Kode Barang</th><th>Kode Umum</th><th>Kode Aset</th><th>Nama Barang</th>
                     <th>Kategori</th><th>Tempat</th><th>Tahun</th><th>Status</th><th width="140">Aksi</th>
                 </tr>
@@ -37,6 +38,15 @@
             <tbody>
                 @forelse($assets as $a)
                 <tr>
+                    <td>
+                        @if($a->foto)
+                            <img src="{{ $a->foto_url }}" class="img-thumbnail" style="width:45px;height:45px;object-fit:cover;">
+                        @else
+                            <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded" style="width:45px;height:45px;">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        @endif
+                    </td>
                     <td>{{ $a->kode_barang }}</td>
                     <td>{{ $a->kode_umum }}</td>
                     <td>{{ $a->kode_aset }}</td>
@@ -54,7 +64,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="9" class="text-center text-muted">Belum ada data aset.</td></tr>
+                <tr><td colspan="10" class="text-center text-muted">Belum ada data aset.</td></tr>
                 @endforelse
             </tbody>
         </table>

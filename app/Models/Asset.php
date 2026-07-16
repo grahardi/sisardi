@@ -12,8 +12,14 @@ class Asset extends Model
     protected $fillable = [
         'kode_barang', 'kode_umum', 'kode_aset', 'nama_barang',
         'category_id', 'location_id', 'tahun_pembelian',
-        'funding_source_id', 'keterangan', 'status',
+        'funding_source_id', 'keterangan', 'status', 'foto',
     ];
+
+    // URL foto lengkap (atau null kalau belum ada foto)
+    public function getFotoUrlAttribute(): ?string
+    {
+        return $this->foto ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->foto) : null;
+    }
 
     public function category()
     {

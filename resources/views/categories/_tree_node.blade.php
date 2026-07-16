@@ -1,9 +1,9 @@
 <li>
     <div class="d-flex align-items-center justify-content-between border rounded px-2 py-1 mb-1 bg-white">
-        <span><i class="bi bi-folder2 text-warning me-1"></i>{{ $node->name }}</span>
+        <span><i class="{{ $node->icon ?: 'bi bi-folder2' }} text-warning me-1"></i>{{ $node->name }}</span>
         <div class="btn-group btn-group-sm">
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCategoryModal"
-                data-id="{{ $node->id }}" data-name="{{ $node->name }}" data-parent="{{ $node->parent_id }}">
+                data-id="{{ $node->id }}" data-name="{{ $node->name }}" data-parent="{{ $node->parent_id }}" data-icon="{{ $node->icon }}">
                 <i class="bi bi-pencil"></i>
             </button>
             <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal"
