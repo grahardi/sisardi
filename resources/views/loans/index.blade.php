@@ -2,6 +2,14 @@
 @section('title', 'Peminjaman')
 @section('content')
 
+@if(request('returned'))
+    <div class="alert alert-success alert-dismissible fade show shadow-sm">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        Barang <b>{{ request('nama') }}</b> ({{ request('kode') }}) berhasil dikembalikan.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <div class="d-flex justify-content-between mb-3">
     <form method="GET" class="d-flex gap-2">
         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Cari kode transaksi/nama peminjam...">

@@ -122,8 +122,6 @@ const btnToggleCamera = document.getElementById('btnToggleCamera');
 const cameraWrap = document.getElementById('cameraWrap');
 let html5QrCode = null;
 let cameraRunning = false;
-let lastScannedCode = null;
-let lastScannedAt = 0;
 
 btnToggleCamera.addEventListener('click', function () {
     if (cameraRunning) {
@@ -142,12 +140,16 @@ function startCamera() {
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 220, height: 220 } },
         (decodedText) => {
-            const now = Date.now();
-            // Cegah barang yang sama kescan berulang-ulang dalam waktu berdekatan
-            if (decodedText === lastScannedCode && (now - lastScannedAt) < 3000) return;
-            lastScannedCode = decodedText;
-            lastScannedAt = now;
-            processScan(decodedText.trim());
+            // Hentikan kamera SEGERA begitu ada QR terbaca, supaya tidak terus-menerus
+            // membaca ulang kode yang sama (penyebab error berulang di HP).
+            if (!cameraRunning) return; // cegah callback ganda saat proses stop sedang berjalan
+            cameraRunning = false;
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                cameraWrap.classList.add('d-none');
+                btnToggleCamera.innerHTML = '<i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP';
+                processScanFromCamera(decodedText.trim());
+            });
         },
         () => {} // diamkan error per-frame (biasanya cuma "QR tidak terdeteksi di frame ini")
     ).then(() => { cameraRunning = true; })
@@ -155,6 +157,41 @@ function startCamera() {
         cameraWrap.classList.add('d-none');
         btnToggleCamera.innerHTML = '<i class="bi bi-camera-fill"></i> Scan Pakai Kamera HP';
         scanStatus.innerHTML = `<div class="alert alert-danger py-2 mb-0">Tidak bisa mengakses kamera: ${err}. Pastikan mengizinkan akses kamera dan situs diakses lewat HTTPS.</div>`;
+    });
+}
+
+// Khusus hasil scan dari KAMERA: kalau berhasil dikembalikan, langsung kembali ke menu
+// Peminjaman dengan pesan sukses (supaya tidak tergoda mengarahkan kamera ke QR yang sama lagi).
+// Kalau gagal, tampilkan error di halaman ini saja dan biarkan user coba scan ulang.
+function processScanFromCamera(kode) {
+    scanStatus.innerHTML = `<div class="alert alert-secondary py-2 mb-0"><span class="spinner-border spinner-border-sm me-1"></span> Memproses "${kode}"...</div>`;
+
+    fetch(`{{ route('loans.quick_return.scan') }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify({ kode: kode }),
+    })
+    .then(async (r) => ({ status: r.status, body: await r.json() }))
+    .then(({ body }) => {
+        if (body.success) {
+            addLogEntry(body.data, true);
+            const params = new URLSearchParams({
+                returned: '1',
+                kode: body.data.kode_barang,
+                nama: body.data.nama_barang,
+            });
+            window.location.href = `{{ route('loans.index') }}?` + params.toString();
+        } else {
+            scanStatus.innerHTML = `<div class="alert alert-danger py-2 mb-0"><i class="bi bi-x-circle-fill me-1"></i>${body.message} <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="startCamera()">Scan Lagi</button></div>`;
+            addLogEntry({ kode_barang: kode, nama_barang: body.message }, false);
+        }
+    })
+    .catch(() => {
+        scanStatus.innerHTML = `<div class="alert alert-danger py-2 mb-0">Terjadi kesalahan koneksi. <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="startCamera()">Scan Lagi</button></div>`;
     });
 }
 
