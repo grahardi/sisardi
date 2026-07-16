@@ -108,6 +108,16 @@ class LoanController extends Controller
         return back()->with('success', 'Peminjam dipilih.');
     }
 
+    // Batal/ganti peminjam yang sudah dipilih, tanpa mengosongkan barang yang sudah ditambahkan
+    public function removeBorrower()
+    {
+        $cart = session(self::CART_SESSION_KEY, ['borrower_id' => null, 'asset_ids' => []]);
+        $cart['borrower_id'] = null;
+        session([self::CART_SESSION_KEY => $cart]);
+
+        return back()->with('success', 'Pilihan peminjam dibatalkan, silakan pilih ulang.');
+    }
+
     public function clearCart()
     {
         session()->forget(self::CART_SESSION_KEY);

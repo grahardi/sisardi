@@ -14,7 +14,13 @@
                             <b>{{ $borrower->name }}</b> <span class="badge bg-secondary">{{ ucfirst($borrower->type) }}</span><br>
                             <small class="text-muted">{{ $borrower->identity_number }} - {{ $borrower->unit }}</small>
                         </div>
-                        <span class="text-success"><i class="bi bi-check-circle-fill"></i> Terpilih</span>
+                        <div class="text-end">
+                            <div class="text-success mb-1"><i class="bi bi-check-circle-fill"></i> Terpilih</div>
+                            <form action="{{ route('loans.cart.remove_borrower') }}" method="POST">
+                                @csrf
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-arrow-repeat"></i> Ganti Peminjam</button>
+                            </form>
+                        </div>
                     </div>
                 @else
                     <input type="text" id="borrowerSearch" class="form-control mb-2" placeholder="Ketik nama atau NIP/NIS...">

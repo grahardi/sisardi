@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/keranjang/tambah', [LoanController::class, 'addToCart'])->name('cart.add');
         Route::post('/keranjang/hapus', [LoanController::class, 'removeFromCart'])->name('cart.remove');
         Route::post('/keranjang/pilih-peminjam', [LoanController::class, 'chooseBorrower'])->name('cart.choose_borrower');
+        Route::post('/keranjang/batal-peminjam', [LoanController::class, 'removeBorrower'])->name('cart.remove_borrower');
         Route::post('/keranjang/kosongkan', [LoanController::class, 'clearCart'])->name('cart.clear');
         Route::post('/checkout', [LoanController::class, 'checkout'])->name('checkout');
         Route::get('/cari-aset', [LoanController::class, 'searchAssets'])->name('search_assets');
