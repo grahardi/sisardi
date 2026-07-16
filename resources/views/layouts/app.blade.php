@@ -34,6 +34,8 @@
 
         .small-box { border-radius: .75rem; overflow:hidden; }
         .small-box .icon { opacity:.35; }
+        .stat-box { transition: transform .15s ease, box-shadow .15s ease; }
+        .stat-box:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.25) !important; color:#fff; }
 
         .tree ul { list-style: none; padding-left: 1.25rem; }
         .tree > ul { padding-left: 0; }

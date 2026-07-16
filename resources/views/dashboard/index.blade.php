@@ -3,7 +3,8 @@
 @section('content')
 
 @php $u = auth()->user(); @endphp
-<div class="row g-2 mb-3">
+<div class="mb-2 text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Menu Cepat</div>
+<div class="row g-2 mb-4">
     @if($u->hasPermission('peminjaman'))
     <div class="col-6 col-md-3">
         <a href="{{ route('loans.cart') }}" class="btn btn-lg w-100 text-white shadow-sm d-flex flex-column align-items-center py-3" style="background: linear-gradient(135deg,#2575fc,#00c6ff);">
@@ -36,42 +37,45 @@
     @endif
 </div>
 
+<hr class="mb-4">
+
+<div class="mb-2 text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Statistik &mdash; klik kotak untuk lihat detailnya</div>
 <div class="row g-3 mb-3">
     <div class="col-lg-3 col-6">
-        <div class="small-box text-white shadow" style="background: linear-gradient(135deg,#6a11cb,#8e2de2);">
+        <a href="{{ route('assets.index') }}" class="small-box text-white shadow d-block text-decoration-none stat-box" style="background: linear-gradient(135deg,#6a11cb,#8e2de2);">
             <div class="inner p-3">
                 <h3 class="mb-0">{{ $totalAset }}</h3>
                 <p class="mb-0">Total Aset</p>
             </div>
             <i class="bi bi-box-seam icon position-absolute" style="right:15px; top:15px; font-size:3rem;"></i>
-        </div>
+        </a>
     </div>
     <div class="col-lg-3 col-6">
-        <div class="small-box text-white shadow" style="background: linear-gradient(135deg,#11998e,#38ef7d);">
+        <a href="{{ route('assets.index', ['status' => 'baik']) }}" class="small-box text-white shadow d-block text-decoration-none stat-box" style="background: linear-gradient(135deg,#11998e,#38ef7d);">
             <div class="inner p-3">
                 <h3 class="mb-0">{{ $asetBaik }}</h3>
                 <p class="mb-0">Kondisi Baik</p>
             </div>
             <i class="bi bi-check-circle icon position-absolute" style="right:15px; top:15px; font-size:3rem;"></i>
-        </div>
+        </a>
     </div>
     <div class="col-lg-3 col-6">
-        <div class="small-box text-white shadow" style="background: linear-gradient(135deg,#f2994a,#f2c94c);">
+        <a href="{{ route('repairs.index') }}" class="small-box text-white shadow d-block text-decoration-none stat-box" style="background: linear-gradient(135deg,#f2994a,#f2c94c);">
             <div class="inner p-3">
                 <h3 class="mb-0">{{ $asetRusak }} / {{ $asetDalamPerbaikan }}</h3>
                 <p class="mb-0">Rusak / Dalam Perbaikan</p>
             </div>
             <i class="bi bi-tools icon position-absolute" style="right:15px; top:15px; font-size:3rem;"></i>
-        </div>
+        </a>
     </div>
     <div class="col-lg-3 col-6">
-        <div class="small-box text-white shadow" style="background: linear-gradient(135deg,#2575fc,#00c6ff);">
+        <a href="{{ route('loans.index', ['status' => 'dipinjam']) }}" class="small-box text-white shadow d-block text-decoration-none stat-box" style="background: linear-gradient(135deg,#2575fc,#00c6ff);">
             <div class="inner p-3">
                 <h3 class="mb-0">{{ $sedangDipinjam }}</h3>
                 <p class="mb-0">Sedang Dipinjam</p>
             </div>
             <i class="bi bi-arrow-left-right icon position-absolute" style="right:15px; top:15px; font-size:3rem;"></i>
-        </div>
+        </a>
     </div>
 </div>
 
