@@ -16,16 +16,16 @@
             --sisardi-2: #2575fc;
         }
         .app-sidebar {
-            background: linear-gradient(180deg, var(--sisardi-1) 0%, var(--sisardi-2) 100%) !important;
+            background: #1a1d21 !important;
         }
-        .app-sidebar .nav-link { color: rgba(255,255,255,.85); }
+        .app-sidebar .nav-link { color: rgba(255,255,255,.75); }
         .app-sidebar .nav-link:hover, .app-sidebar .nav-link.active {
-            background: rgba(255,255,255,.15);
+            background: rgba(255,255,255,.08);
             color: #fff;
         }
-        .app-sidebar .brand-link { border-bottom: 1px solid rgba(255,255,255,.15); }
+        .app-sidebar .brand-link { border-bottom: 1px solid rgba(255,255,255,.1); }
         .app-sidebar .brand-text { font-weight: 700; }
-        .app-sidebar .user-panel .info small { color: rgba(255,255,255,.7); }
+        .app-sidebar .user-panel .info small { color: rgba(255,255,255,.6); }
 
         .icon-dash { width: 30px; text-align: center; }
         .badge-status-baik { background:#00a65a; }
